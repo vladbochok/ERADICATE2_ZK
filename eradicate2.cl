@@ -33,9 +33,9 @@ __kernel void eradicate2_iterate(__global result * const pResult, __global const
 	// and assume that there'll never be more than 2**32 devices, threads or rounds. Worst case scenario with default settings
 	// of 16777216 = 2**24 threads means the assumption fails after a device has tried 2**32 * 2**24 = 2**56 salts, enough to match
 	// 14 characters in the address! A GTX 1070 with speed of ~700*10**6 combinations per second would hit this target after ~3 years.
-	h.d[6] += deviceIndex; 
-	h.d[7] += get_global_id(0);
-	h.d[8] += round;
+	h.d[16] += deviceIndex; 
+	h.d[17] += get_global_id(0);
+	h.d[18] += round;
 
 	// Hash
 	sha3_keccakf(&h);
@@ -87,14 +87,14 @@ void eradicate2_result_update(const uchar * const H, __global result * const pRe
 		if (hasResult == 0) {
 			// Reconstruct state with hash and extract salt
 			ethhash h = { .q = { ERADICATE2_INITHASH } };
-			h.d[6] += deviceIndex;
-			h.d[7] += get_global_id(0);
-			h.d[8] += round;
+			h.d[16] += deviceIndex;
+			h.d[17] += get_global_id(0);
+			h.d[18] += round;
 
 			ethhash be;
 
 			for (int i = 0; i < 32; ++i) {
-				pResult[score].salt[i] = h.b[i + 21];
+				pResult[score].salt[i] = h.b[i + 64];
 			}
 
 			for (int i = 0; i < 20; ++i) {
